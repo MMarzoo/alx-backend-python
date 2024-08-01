@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-""" Annotate """
+""" Type Checking """
 from typing import Any, Tuple, List
 
 
 def zoom_array(lst: Tuple, factor: int = 2) -> List:
+    ''' Zoom Array '''
     zoomed_in: List = [
         item for item in lst
         for i in range(factor)
