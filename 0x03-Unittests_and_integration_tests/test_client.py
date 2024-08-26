@@ -69,13 +69,35 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration test"""
     @classmethod
     def setUpClass(cls):
-        """ Set up the test environment by mocking requests.get """
-        cls.get_patcher = patch('requests.get', side_effect=[
-            cls.org_payload, cls.repos_payload
-        ])
-        cls.get_patcher.start()
+        """Set up the test environment by mocking requests.get"""
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
+
+        def get_json_side_effect(url: str):
+            """Return different mock responses based on the URL"""
+            mock = Mock()
+            if url == cls.org_payload["repos_url"]:
+                mock.json.return_value = cls.repos_payload
+            else:
+                mock.json.return_value = cls.org_payload
+            return mock
+
+        cls.mock_get.side_effect = get_json_side_effect
 
     @classmethod
     def tearDownClass(cls):
         """ Clean up the test environment """
         cls.get_patcher.stop()
+
+    def test_public_repos(self):
+        """ Test that public_repos method returns the expected result """
+        test_class = GithubOrgClient("google")
+        self.assertEqual(test_class.org, self.org_payload)
+        self.assertEqual(test_class.repos_payload, self.repos_payload)
+        self.assertEqual(test_class.public_repos(), self.expected_repos)
+        self.assertEqual(test_class.public_repos("404"), [])
+
+    def test_public_repos_with_license(self):
+        """ Test that public_repos method returns the expected result """
+        spec = GithubOrgClient("google")
+        self.assertEqual(spec.public_repos("apache-2.0"), self.apache2_repos)
