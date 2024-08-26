@@ -66,16 +66,14 @@ class TestGithubOrgClient(unittest.TestCase):
 @parameterized_class(['org_payload', 'repos_payload',
                       'expected_repos', 'apache2_repos'], TEST_PAYLOAD)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """ Test the integration of GithubOrgClient with the client module """
+    """Integration test"""
     @classmethod
-    def setupClass(cls):
-        """ Set up the client module """
-        cls.get_patcher = patch('request.get', side_effect=[
+    def setUpClass(cls):
+        cls.get_patcher = patch('requests.get', side_effect=[
             cls.org_payload, cls.repos_payload
         ])
         cls.mocked_get = cls.get_patcher.start()
 
     @classmethod
-    def teardownClass(cls):
-        """ Tear down the client module """
+    def tearDownClass(cls):
         cls.get_patcher.stop()
